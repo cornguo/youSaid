@@ -75,7 +75,9 @@ if (isset($queryName) && strlen($queryName) > 0) {
             if (file_exists($filename) && time() - filemtime($filename) < 3600) {
                 $data = file_get_contents($filename);
             } else {
-                $data = shell_exec("/usr/local/bin/wget --no-check-certificate -qO- '{$url}'");
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                $data = curl_exec($ch);
                 file_put_contents($filename, $data);
             }
 
