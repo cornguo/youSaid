@@ -43,9 +43,11 @@ if (isset($queryName) && strlen($queryName) > 0) {
     $sentences = array();
     $links = array();
 
+/* log query if necessary
     $logfile = "./log/" . date("Ymd") . '.txt';
     $logmessage = date("YmdHis") . "\t{$_SERVER['REMOTE_ADDR']}\t{$queryName}\n";
     file_put_contents($logfile, $logmessage, FILE_APPEND);
+*/
 
     if (preg_match("/[\pC\pM\pP\pS]/Uu", $queryName)) {
         echo "Meow =w=?";
