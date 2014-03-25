@@ -15,14 +15,30 @@ function setFocus() {
 <body onload="setFocus();">
 <base target='_blank' />
 <?php
-$names = array("馬英九", "吳敦義", "王如玄", "金溥聰", "蔡英文", "陳菊", "蘇貞昌", "李宗瑞", "郭台銘", "蔡衍明", "陳保基", "謝長廷", "王郁琦", "消息人士", "民眾", "陳冲", "施顏祥", "尹啟銘", "蕭萬長", "江宜樺", "蕭家淇", "林飛帆", "陳為廷");
+$names = array(
+        "馬英九", "吳敦義", "王如玄", "金溥聰",
+        "蔡英文", "陳菊", "蘇貞昌", "李宗瑞",
+        "郭台銘", "蔡衍明", "陳保基", "謝長廷",
+        "王郁琦", "消息人士", "民眾", "陳冲",
+        "施顏祥", "尹啟銘", "蕭萬長", "江宜樺",
+        "蕭家淇", "林飛帆", "陳為廷"
+);
+?>
 
-echo "<p style=\"border: 1px dashed #600; background-color: #FFC; padding: 0.5em;\">\n<strong>You Said</strong> is a handy tool which parse news snippets from Google News (Taiwan) and extracts all possible quotes from the name you queried.</p>\n";
+<p style="border: 1px dashed #600; background-color: #FFC; padding: 0.5em;">
+    <strong>You Said</strong> is a handy tool which parse news snippets from Google News (Taiwan)
+    and extracts all possible quotes from the name you queried.
+</p>
 
-echo "<p>\n<form action='.' target='_self'>\nYou said: <input type='text' name='name' value='" . $names[rand(0, count($names)-1)] . "'></input> <input type='submit'></input>\n</form>\n</p>\n";
+<p>
+    <form action="." target="_self">
+        You said: <input type="text" name="name" value="<?php echo $names[rand(0, count($names)-1)]; ?>"></input>
+        <input type='submit'></input>
+    </form>
+</p>
 
-echo "<p>\n";
-
+<p>
+<?php
 if (isset($queryName) && strlen($queryName) > 0) {
     $sentences = array();
     $links = array();
@@ -56,11 +72,21 @@ if (isset($queryName) && strlen($queryName) > 0) {
 
         foreach ($nameArr as $name) {
             $name = htmlspecialchars($name);
-            $trigger = array("「", "：", "說", "表示", "哽咽", "指示", "表達", "希望", "期盼", "呼籲", "喊", "宣示", "期待", "指出", "稱", "解釋", "聲明", "強調", "發表", "致詞", "陳情", "提出", "質疑", "下令", "諷刺", "譏");
-            $endpunc = array("。", "！", "？", "!", "?", ".", "」");
+
+            $trigger = array(
+                "「", "：", "說", "表示", "哽咽", "指示", "表達", "希望", "期盼",
+                "呼籲", "喊", "宣示", "期待", "指出", "稱", "解釋", "聲明", "強調",
+                "發表", "致詞", "陳情", "提出", "質疑", "下令", "諷刺", "譏"
+            );
+
+            $endpunc = array(
+                "。", "！", "？", "!", "?", ".", "」"
+            );
+
             $url = "https://news.google.com.tw/news/feeds?hl=zh-TW&rls=zh-tw&q=" . urlencode($name) . "+%28" . urlencode(implode(" OR ", $trigger)) . "%29&um=1&ie=UTF-8&num=100";
 
             $filename = "./cache/news/" . strtolower($name) . "_" . date("Ymd") . ".cache";
+
             if (file_exists($filename) && time() - filemtime($filename) < 3600) {
                 $data = file_get_contents($filename);
             } else {
@@ -137,7 +163,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
         echo "</li></ul>\n";
     }
 }
-echo "</p>\n";
 ?>
+</p>
 </body>
 </html>
