@@ -43,6 +43,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
     file_put_contents($logfile, $logmessage, FILE_APPEND);
 */
 
+    // strip invalid queries by pattern
     if (preg_match("/[\pC\pM\pP\pS]/Uu", $queryName)) {
         echo "Meow =w=?";
         return;
@@ -51,11 +52,14 @@ if (isset($queryName) && strlen($queryName) > 0) {
     echo "Source: <a href=\"http://news.google.com.tw\" target=\"_blank\">Google News</a>";
     echo "<h1>NAME = {$queryName}</h1>";
 
+    // setup cache file name
     $sentenceFile = "./cache/sentence/" . strtolower($queryName) . "_" . date("Ymd_H-") . intval(date("i") / 20) * 20 . ".sentence";
     $linkFile = "./cache/link/" . strtolower($queryName) . "_" . date("Ymd_H-") . intval(date("i") / 20) * 20 . ".link";
 
+    // if cache file does not exist or filesize is small, fetch and calculate data
     if (!file_exists($sentenceFile) || filesize($sentenceFile) < 10) {
 
+        // get related name aliases, if any
         $nameArr = array($queryName);
         $relatedList = file('names.txt', FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
         foreach ($relatedList as $nameList) {
@@ -66,12 +70,15 @@ if (isset($queryName) && strlen($queryName) > 0) {
             }
         }
 
+        // fetch and extract sentences from snippets of Google News, name by name
         foreach ($nameArr as $name) {
+
             $name = htmlspecialchars($name);
             $url = "https://news.google.com.tw/news/feeds?hl=zh-TW&rls=zh-tw&q=" . urlencode($name) . "+%28" . urlencode(implode(" OR ", $trigger)) . "%29&um=1&ie=UTF-8&num=100";
 
             $filename = "./cache/news/" . strtolower($name) . "_" . date("Ymd") . ".cache";
 
+            // cache results from Google News to suppress queries
             if (file_exists($filename) && time() - filemtime($filename) < 3600) {
                 $data = file_get_contents($filename);
             } else {
@@ -83,6 +90,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
 
             echo "<!-- [{$name}] cache time: " . date("Y-m-d H:i", filemtime($filename)) . " -->\n";
 
+            // traversse RSS fetched and extract snippets
             $news = new SimpleXMLElement($data);
             foreach ($news->channel->item as $i) {
                 $link = $i->link;
@@ -92,6 +100,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
                 foreach ($strings as $string) {
                     $pos = mb_stripos($string, $name, 0, 'utf-8');
                     if (false !== $pos){
+                        // try to find sentece boundary and extract it
                         $short = mb_substr($string, $pos, 30, 'utf-8');
                         $sPos = false;
                         $ePos = false;
@@ -129,19 +138,23 @@ if (isset($queryName) && strlen($queryName) > 0) {
                 }
             }
         }
+        // save cache files
         file_put_contents($sentenceFile, json_encode($sentences));
         file_put_contents($linkFile, json_encode($links));
     } else {
+        // load cache files
         $sentences = json_decode(file_get_contents($sentenceFile), true);
         $links = json_decode(file_get_contents($linkFile), true);
     }
 
+    // sort sentence by time and strip duplicated data
     foreach ($sentences as $date => $sentArr) {
         arsort($sentArr);
         $sentences[$date] = array_unique($sentArr);
     }
     krsort($sentences);
 
+    // prints out sentences
     foreach ($sentences as $date => $sentArr) {
         echo "<li>{$date}<ul>\n";
         foreach ($sentArr as $hash => $sent) {
