@@ -14,15 +14,9 @@ function setFocus() {
 </head>
 <body onload="setFocus();">
 <base target='_blank' />
+
 <?php
-$names = array(
-        "馬英九", "吳敦義", "王如玄", "金溥聰",
-        "蔡英文", "陳菊", "蘇貞昌", "李宗瑞",
-        "郭台銘", "蔡衍明", "陳保基", "謝長廷",
-        "王郁琦", "消息人士", "民眾", "陳冲",
-        "施顏祥", "尹啟銘", "蕭萬長", "江宜樺",
-        "蕭家淇", "林飛帆", "陳為廷"
-);
+require_once 'settings.php';
 ?>
 
 <p style="border: 1px dashed #600; background-color: #FFC; padding: 0.5em;">
@@ -74,17 +68,6 @@ if (isset($queryName) && strlen($queryName) > 0) {
 
         foreach ($nameArr as $name) {
             $name = htmlspecialchars($name);
-
-            $trigger = array(
-                "「", "：", "說", "表示", "哽咽", "指示", "表達", "希望", "期盼",
-                "呼籲", "喊", "宣示", "期待", "指出", "稱", "解釋", "聲明", "強調",
-                "發表", "致詞", "陳情", "提出", "質疑", "下令", "諷刺", "譏"
-            );
-
-            $endpunc = array(
-                "。", "！", "？", "!", "?", ".", "」"
-            );
-
             $url = "https://news.google.com.tw/news/feeds?hl=zh-TW&rls=zh-tw&q=" . urlencode($name) . "+%28" . urlencode(implode(" OR ", $trigger)) . "%29&um=1&ie=UTF-8&num=100";
 
             $filename = "./cache/news/" . strtolower($name) . "_" . date("Ymd") . ".cache";
