@@ -1,0 +1,6 @@
+link/*
+news/*
+sentence/*
+!link/.gitkeep
+!news/.gitkeep
+!sentence/.gitkeep
