@@ -99,7 +99,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
                 $time = date("H:i", strtotime($i->pubDate));
                 foreach ($strings as $string) {
                     $pos = mb_stripos($string, $name, 0, 'utf-8');
-                    if (false !== $pos){
+                    if (false !== $pos) {
                         // try to find sentece boundary and extract it
                         $short = mb_substr($string, $pos, 30, 'utf-8');
                         $sPos = false;
