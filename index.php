@@ -15,9 +15,6 @@ function setFocus() {
 <body onload="setFocus();">
 <base target='_blank' />
 <?php
-define("MEDIAWIKI_PATH", "zhconv/mediawiki-1.15.4/");
-require_once 'zhconv/mediawiki-zhconverter/mediawiki-zhconverter.inc.php';
-
 $names = array("馬英九", "吳敦義", "王如玄", "金溥聰", "蔡英文", "陳菊", "蘇貞昌", "李宗瑞", "郭台銘", "蔡衍明", "陳保基", "謝長廷", "王郁琦", "消息人士", "民眾", "陳冲", "施顏祥", "尹啟銘", "蕭萬長", "江宜樺", "蕭家淇", "林飛帆", "陳為廷");
 
 echo "<p style=\"border: 1px dashed #600; background-color: #FFC; padding: 0.5em;\">\n<strong>You Said</strong> is a handy tool which parse news snippets from Google News (Taiwan) and extracts all possible quotes from the name you queried.</p>\n";
@@ -80,7 +77,6 @@ if (isset($queryName) && strlen($queryName) > 0) {
                 $date = date("Y-m-d", strtotime($i->pubDate));
                 $time = date("H:i", strtotime($i->pubDate));
                 foreach ($strings as $string) {
-                    $string = MediaWikiZhConverter::convert($string, "zh-tw");
                     $pos = mb_stripos($string, $name, 0, 'utf-8');
                     if (false !== $pos){
                         $short = mb_substr($string, $pos, 30, 'utf-8');
