@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><?php if(isset($_GET['name'])) $queryName = mb_convert_encoding($_GET['name'], 'utf-8', array('utf-8', 'big5')); ?>
-<title>You Said<?php echo (!isset($queryName))? "":" - " . htmlspecialchars($queryName); ?></title>
+<title>You Said<?php echo (!isset($queryName))? '':' - ' . htmlspecialchars($queryName); ?></title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <script type="text/javascript">
 function setFocus() {
@@ -44,17 +44,17 @@ if (isset($queryName) && strlen($queryName) > 0) {
 */
 
     // strip invalid queries by pattern
-    if (preg_match("/[\pC\pM\pP\pS]/Uu", $queryName)) {
+    if (preg_match('/[\pC\pM\pP\pS]/Uu', $queryName)) {
         echo "Meow =w=?";
         return;
     }
 
-    echo "Source: <a href=\"http://news.google.com.tw\" target=\"_blank\">Google News</a>";
-    echo "<h1>NAME = {$queryName}</h1>";
+    echo 'Source: <a href="http://news.google.com.tw">Google News</a>';
+    echo '<h1>NAME = ' . $queryName . '</h1>';
 
     // setup cache file name
-    $sentenceFile = "./cache/sentence/" . strtolower($queryName) . "_" . date("Ymd_H-") . intval(date("i") / 20) * 20 . ".sentence";
-    $linkFile = "./cache/link/" . strtolower($queryName) . "_" . date("Ymd_H-") . intval(date("i") / 20) * 20 . ".link";
+    $sentenceFile = './cache/sentence/' . strtolower($queryName) . '_' . date('Ymd_H-') . intval(date('i') / 20) * 20 . '.sentence';
+    $linkFile = './cache/link/' . strtolower($queryName) . '_' . date('Ymd_H-') . intval(date('i') / 20) * 20 . '.link';
 
     // if cache file does not exist or filesize is small, fetch and calculate data
     if (!file_exists($sentenceFile) || filesize($sentenceFile) < 10) {
@@ -74,9 +74,13 @@ if (isset($queryName) && strlen($queryName) > 0) {
         foreach ($nameArr as $name) {
 
             $name = htmlspecialchars($name);
-            $url = "https://news.google.com.tw/news/feeds?hl=zh-TW&rls=zh-tw&q=" . urlencode($name) . "+%28" . urlencode(implode(" OR ", $trigger)) . "%29&um=1&ie=UTF-8&num=100";
 
-            $filename = "./cache/news/" . strtolower($name) . "_" . date("Ymd") . ".cache";
+            // tricky part: add trigger characters to get effective snippets
+            $url = 'https://news.google.com.tw/news/feeds?hl=zh-TW&rls=zh-tw&q='
+                    . urlencode($name) . '+%28' . urlencode(implode(' OR ', $trigger))
+                    . '%29&um=1&ie=UTF-8&num=100';
+
+            $filename = './cache/news/' . strtolower($name) . '_' . date('Ymd') . '.cache';
 
             // cache results from Google News to suppress queries
             if (file_exists($filename) && time() - filemtime($filename) < 3600) {
@@ -88,15 +92,16 @@ if (isset($queryName) && strlen($queryName) > 0) {
                 file_put_contents($filename, $data);
             }
 
-            echo "<!-- [{$name}] cache time: " . date("Y-m-d H:i", filemtime($filename)) . " -->\n";
+            echo '<!-- [' . $name . '] cache time: ' . date('Y-m-d H:i', filemtime($filename)) . ' -->' . PHP_EOL;
 
             // traversse RSS fetched and extract snippets
             $news = new SimpleXMLElement($data);
             foreach ($news->channel->item as $i) {
                 $link = $i->link;
-                $strings = explode("<", strip_tags($i->description, "<div><a><p><span>"));
-                $date = date("Y-m-d", strtotime($i->pubDate));
-                $time = date("H:i", strtotime($i->pubDate));
+                $strings = explode('<', strip_tags($i->description, '<div><a><p><span>'));
+                $pubTime = strtotime($i->pubDate);
+                $date = date('Y-m-d', $pubTime);
+                $time = date('H:i', $pubTime);
                 foreach ($strings as $string) {
                     $pos = mb_stripos($string, $name, 0, 'utf-8');
                     if (false !== $pos) {
@@ -128,7 +133,7 @@ if (isset($queryName) && strlen($queryName) > 0) {
                                 if (!isset($sentences[$date])) {
                                     $sentences[$date] = array();
                                 }
-                                $str = "[{$time}] {$sentence}";
+                                $str = '[' . $time . '] ' . $sentence;
                                 $hash = md5($date . $str);
                                 $sentences[$date][$hash] = $str;
                                 $links[$hash] = (string)$link;
@@ -156,11 +161,11 @@ if (isset($queryName) && strlen($queryName) > 0) {
 
     // prints out sentences
     foreach ($sentences as $date => $sentArr) {
-        echo "<li>{$date}<ul>\n";
+        echo '<li>' . $date . '<ul>' . PHP_EOL;
         foreach ($sentArr as $hash => $sent) {
-            echo "<li>" . $sent . " (<a href=\"{$links[$hash]}\">link</a>)</li>\n";
+            echo '<li>' . $sent . ' (<a href="' . $links[$hash] . '">link</a>)</li>' . PHP_EOL;
         }
-        echo "</li></ul>\n";
+        echo '</li></ul>' . PHP_EOL;
     }
 }
 ?>
